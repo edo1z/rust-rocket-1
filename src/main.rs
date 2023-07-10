@@ -1,20 +1,21 @@
 #[macro_use] extern crate rocket;
 
-use std::path::{Path, PathBuf};
-use rocket::fs::NamedFile;
-
 #[get("/")]
 fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[get("/<file..>")]
-async fn files(file: PathBuf) -> Option<NamedFile> {
-    let path = Path::new("static/").join(file);
-    NamedFile::open(path).await.ok()
+#[get("/<hoge>")]
+fn hoge(hoge: u8) -> String {
+    format!("Hoge! {}", hoge)
+}
+
+#[get("/<hoge>", rank = 2)]
+fn hoge2(hoge: &str) -> String {
+    format!("Hoge2! {}", hoge)
 }
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index, files])
+    rocket::build().mount("/", routes![index, hoge, hoge2])
 }
