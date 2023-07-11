@@ -1,25 +1,33 @@
 #[macro_use]
 extern crate rocket;
 
-mod guard;
-use guard::{GuardA, GuardB, GuardC};
+use rocket::http::Status;
+use rocket::serde::json::Json;
+use rocket::Request;
+use serde::Deserialize;
 
-#[get("/<hoge>")]
-fn hoge(hoge: u8, _a: GuardA, _b: GuardB, _c:GuardC) -> String {
-    format!("Hoge! {}", hoge)
+#[derive(Deserialize)]
+struct Hoge {
+    num: u8,
 }
 
-#[get("/<hoge>", rank = 2)]
-fn hoge2(hoge: u8, _a: GuardA) -> String {
-    format!("Hoge 2! {}", hoge)
+#[post("/", format = "json", data = "<hoge>")]
+fn index(hoge: Json<Hoge>) -> String {
+    format!("hoge {}", hoge.num)
 }
 
-#[get("/<hoge>", rank = 3)]
-fn hoge3(hoge: u8, _a: GuardB) -> String {
-    format!("Hoge 3! {}", hoge)
+#[catch(default)]
+fn default_catcher(status: Status, _request: &Request) -> String {
+    let msg = match status.code {
+        404 => "Not Found",
+        _ => "Internal Server Error",
+    };
+    format!("{}: {}", status.code, msg)
 }
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![hoge, hoge2, hoge3])
+    rocket::build()
+        .mount("/", routes![index])
+        .register("/", catchers![default_catcher])
 }
