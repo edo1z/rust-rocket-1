@@ -1,35 +1,33 @@
-#[macro_use]
-extern crate rocket;
+#[macro_use] extern crate rocket;
 
 use rocket::http::Status;
 use rocket::serde::json::Json;
-use rocket::response::Responder;
+use rocket::response::{Responder, Response};
 use rocket::Request;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Deserialize)]
-struct Hoge {
-    num: u8,
+#[derive(Serialize, Deserialize)]
+struct Error {
+    code: u16,
+    msg: String,
 }
 
-#[derive(Responder)]
-enum Error {
-    // #[response(status = 404)]
-    // NotFound(String),
-    #[response(status = 500)]
-    InternalServerError(String),
+impl<'r> Responder<'r, 'static> for Error {
+    fn respond_to(self, req: &'r Request<'_>) -> rocket::response::Result<'static> {
+        let status = Status::from_code(self.code).unwrap_or(Status::InternalServerError);
+        Response::build_from(Json(self).respond_to(req)?)
+            .status(status)
+            .ok()
+    }
 }
 
-#[post("/", format = "json", data = "<hoge>")]
-fn index(hoge: Json<Hoge>) -> String {
-    format!("hoge {}", hoge.num)
-}
 
 #[get("/", format = "json")]
-fn hoge() -> Result<&'static str, Error> {
-    // Ok("Hello, world!")
-    // Err(Error::NotFound("hoge".to_string()))
-    Err(Error::InternalServerError("hoge!!".to_string()))
+fn index() -> Result<&'static str, Error> {
+    Err(Error {
+        code: 400,
+        msg: "hoge!".to_string(),
+    })
 }
 
 #[catch(default)]
@@ -47,6 +45,6 @@ fn default_catcher(status: Status, _request: &Request) -> String {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, hoge])
+        .mount("/", routes![index])
         .register("/", catchers![default_catcher])
 }
