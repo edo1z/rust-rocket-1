@@ -1,20 +1,19 @@
 #[macro_use] extern crate rocket;
-use rocket::Config;
 use serde::Deserialize;
 use dotenv::dotenv;
 use rocket::figment::value::Map;
+use rocket::{State, fairing::AdHoc};
 
 #[derive(Deserialize, Debug)]
-struct MyConfig {
+struct AppConfig {
     hoge: String,
-    apple: Map<String, Map<String, String>>,
     databases: Map<String, Map<String, String>>
 }
 
 #[get("/")]
-fn index() -> String {
-    let config = Config::figment().extract::<MyConfig>();
-    format!("{:?}", config)
+fn index(config: &State<AppConfig>) -> String {
+    // config.hoge.to_string()
+    config.databases.get("hoge").unwrap().get("url").unwrap().to_string()
 }
 
 #[launch]
@@ -22,4 +21,5 @@ fn rocket() -> _ {
     dotenv().ok();
     rocket::build()
         .mount("/", routes![index])
+        .attach(AdHoc::config::<AppConfig>())
 }

@@ -22,4 +22,4 @@ hoge = "global hoge"
 url = "postgres://user:password@localhost/hoge"
 
 [dev.databases.hoge]
-url = "postgres://user:password@localhost/hoge"
+url = "postgres://user:password@dev/hoge"
