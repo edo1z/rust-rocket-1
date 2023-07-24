@@ -7,7 +7,8 @@ use rocket::figment::value::Map;
 #[derive(Deserialize, Debug)]
 struct MyConfig {
     hoge: String,
-    apple: Map<String, String>
+    apple: Map<String, Map<String, String>>,
+    databases: Map<String, Map<String, String>>
 }
 
 #[get("/")]

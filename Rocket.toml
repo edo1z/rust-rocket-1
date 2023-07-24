@@ -1,11 +1,16 @@
 [default]
 hoge = "default hoge"
 
-[default.apple]
-banana = "hello"
+[default.apple.banana]
+cow = "hello"
+panda = "bow"
 
 [dev]
 hoge = "dev hoge"
+
+[dev.apple.banana]
+cow = "dev hello"
+panda = "dev bow"
 
 [prod]
 hoge = "prod hoge"
