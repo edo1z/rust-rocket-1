@@ -1,0 +1,20 @@
+[default]
+hoge = "default hoge"
+
+[default.apple]
+banana = "hello"
+
+[dev]
+hoge = "dev hoge"
+
+[prod]
+hoge = "prod hoge"
+
+[global]
+hoge = "global hoge"
+
+[default.databases.hoge]
+url = "postgres://user:password@localhost/hoge"
+
+[dev.databases.hoge]
+url = "postgres://user:password@localhost/hoge"
